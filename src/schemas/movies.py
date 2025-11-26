@@ -8,7 +8,7 @@ class MovieDetailResponseSchema(BaseModel):
     name: str
     date: date
     score: float
-    genres: List[str]
+    genre: List[str]
     overview: str
     crew: List[str]
     orig_title: str
@@ -18,9 +18,9 @@ class MovieDetailResponseSchema(BaseModel):
     revenue: int
     country: str
 
-    @field_validator("genres", mode="before")
+    @field_validator("genre", mode="before")
     @classmethod
-    def split_genres(cls, v):
+    def split_genre(cls, v):
         if isinstance(v, str):
             return [g.strip() for g in v.split(",")]
         return v
