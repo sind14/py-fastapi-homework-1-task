@@ -32,7 +32,6 @@ class MovieDetailResponseSchema(BaseModel):
             return [c.strip() for c in v.split(",")]
         return v
 
-
     class Config:
         orm_mode = True
 
