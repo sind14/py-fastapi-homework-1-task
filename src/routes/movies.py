@@ -1,17 +1,18 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from database import get_db, MovieModel
-from schemas.movies import PaginatedMovies
+from database import get_db
+from database.models import MovieModel
+from schemas.movies import MovieDetailResponseSchema, MovieListResponseSchema
 
 
 router = APIRouter(prefix="/movies", tags=["Movies"])
 
 
-@router.get("/", response_model=PaginatedMovies)
+@router.get("/", response_model=MovieListResponseSchema)
 async def get_movies(
     page: int = Query(1, ge=1),
-    per_page: int = Query(10, ge=1),
+    per_page: int = Query(10, ge=1, le=20),
     db: AsyncSession = Depends(get_db),
 ):
     result = await db.execute(select(MovieModel))
@@ -27,8 +28,10 @@ async def get_movies(
     end = start + per_page
     movies_page = all_movies[start:end]
 
-    prev_page = f"movies/?page={page-1}&per_page={per_page}" if page > 1 else None
-    next_page = f"movies/{page+1}&per_page={per_page}" if page < total_pages else None
+    base_url = "/api/v1/theater/movies/"
+
+    prev_page = f"{base_url}?page={page-1}&per_page={per_page}" if page > 1 else None
+    next_page = f"{base_url}?page={page+1}&per_page={per_page}" if page < total_pages else None
 
     return {
         "movies": movies_page,
@@ -39,10 +42,10 @@ async def get_movies(
     }
 
 
-@router.get("/{movie_id}", response_model=MovieModel)
+@router.get("/{movie_id}", response_model=MovieDetailResponseSchema)
 async def get_movie(movie_id: int, db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(MovieModel).where(MovieModel.id == movie_id))
-    movie = result.scalars().one()
+    movie = result.scalars().first()
     if not movie:
         raise HTTPException(status_code=404, detail="Movie with the given ID was not found.")
     return movie
