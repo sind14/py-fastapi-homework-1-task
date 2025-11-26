@@ -32,6 +32,13 @@ class MovieDetailResponseSchema(BaseModel):
             return [c.strip() for c in v.split(",")]
         return v
 
+    @field_validator("revenue", "budget", mode="before")
+    @classmethod
+    def convert_to_int(cls, v):
+        if isinstance(v, float):
+            return int(v)
+        return v
+
     class Config:
         orm_mode = True
 
