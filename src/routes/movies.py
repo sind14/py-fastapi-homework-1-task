@@ -5,7 +5,6 @@ from database import get_db
 from database.models import MovieModel
 from schemas.movies import MovieDetailResponseSchema, MovieListResponseSchema
 
-
 router = APIRouter(prefix="/movies", tags=["Movies"])
 
 
@@ -27,7 +26,6 @@ async def get_movies(
         raise HTTPException(status_code=404, detail="No movies found.")
 
     offset = (page - 1) * per_page
-
     result = await db.execute(select(MovieModel).offset(offset).limit(per_page))
     movies_page = result.scalars().all()
 
@@ -44,7 +42,7 @@ async def get_movies(
     }
 
 
-@router.get("/movies/{movie_id}/", response_model=MovieDetailResponseSchema)
+@router.get("/{movie_id}/", response_model=MovieDetailResponseSchema)
 async def get_movie(movie_id: int, db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(MovieModel).where(MovieModel.id == movie_id))
     movie = result.scalars().first()

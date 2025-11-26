@@ -1,5 +1,5 @@
 from typing import List, Optional
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel
 from datetime import date
 
 
@@ -8,9 +8,9 @@ class MovieDetailResponseSchema(BaseModel):
     name: str
     date: date
     score: float
-    genre: List[str]
+    genre: str
     overview: str
-    crew: List[str]
+    crew: str
     orig_title: str
     status: str
     orig_lang: str
@@ -18,22 +18,9 @@ class MovieDetailResponseSchema(BaseModel):
     revenue: float
     country: str
 
-    @field_validator("genre", mode="before")
-    @classmethod
-    def split_genre(cls, v):
-        if isinstance(v, str):
-            return [g.strip() for g in v.split(",")]
-        return v
-
-    @field_validator("crew", mode="before")
-    @classmethod
-    def split_crew(cls, v):
-        if isinstance(v, str):
-            return [c.strip() for c in v.split(",")]
-        return v
-
-    class Config:
-        orm_mode = True
+    model_config = {
+        "from_attributes": True
+    }
 
 
 class MovieListResponseSchema(BaseModel):
